@@ -1,12 +1,12 @@
 # Stage 1: Build with newer Maven (has Java 8u322)
-FROM maven:3.8.4-jdk-8 AS builder
+FROM docker.io/library/maven:3.8.4-jdk-8 AS builder
 
 COPY . /usr/src/poc
 WORKDIR /usr/src/poc
 RUN mvn clean && mvn package
 
 # Stage 2: Run with vulnerable Java 8u181 (JNDI RCE vulnerable)
-FROM openjdk:8u181-jdk
+FROM docker.io/library/openjdk:8u181-jdk
 
 COPY --from=builder /usr/src/poc/target/log4j-rce-1.0-SNAPSHOT-jar-with-dependencies.jar /app/app.jar
 WORKDIR /app

@@ -45,9 +45,9 @@ exploit-setup:
 		cd exploit && git clone https://github.com/mbechler/marshalsec.git; \
 	fi
 	@echo "Building marshalsec..."
-	@cd exploit/marshalsec && podman run --rm -v $$(pwd):/marshalsec:Z -w /marshalsec maven:3.8.4-jdk-8 mvn clean package -DskipTests
+	@cd exploit/marshalsec && podman run --rm -v $$(pwd):/marshalsec:Z -w /marshalsec docker.io/library/maven:3.8.4-jdk-8 mvn clean package -DskipTests
 	@echo "Compiling exploit payload..."
-	@cd exploit && podman run --rm -v $$(pwd):/exploit:Z maven:3.8.4-jdk-8 javac /exploit/Exploit.java
+	@cd exploit && podman run --rm -v $$(pwd):/exploit:Z docker.io/library/maven:3.8.4-jdk-8 javac /exploit/Exploit.java
 	@echo "Exploit setup complete!"
 
 http-server:
