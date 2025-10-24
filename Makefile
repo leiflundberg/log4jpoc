@@ -40,15 +40,36 @@ run: build
 
 exploit-setup:
 	@echo "Setting up exploit environment..."
-	@mkdir -p exploit
-	@if [ ! -d exploit/marshalsec ]; then \
-		cd exploit && git clone https://github.com/mbechler/marshalsec.git; \
+	@if [ ! -d exploit/marshalsec/src ]; then \
+		echo "ERROR: marshalsec source not found!"; \
+		echo "The marshalsec directory should be part of this repository."; \
+		echo "If you're starting fresh, run:"; \
+		echo "  cd exploit"; \
+		echo "  git clone https://github.com/mbechler/marshalsec.git"; \
+		echo "  rm -rf marshalsec/.git"; \
+		exit 1; \
 	fi
-	@echo "Building marshalsec..."
-	@cd exploit/marshalsec && podman run --rm -v $$(pwd):/marshalsec:Z -w /marshalsec docker.io/library/maven:3.8.4-jdk-8 mvn clean package -DskipTests
+	@echo "Building marshalsec with Maven..."
+	@cd exploit/marshalsec && podman run --rm \
+		--userns=keep-id \
+		-v $$(pwd):/marshalsec:Z \
+		-w /marshalsec \
+		docker.io/library/maven:3.8.4-jdk-8 \
+		mvn clean package -DskipTests
+	@echo "Verifying marshalsec JAR..."
+	@if [ ! -f exploit/marshalsec/target/marshalsec-*-all.jar ]; then \
+		echo "ERROR: marshalsec JAR not found after build!"; \
+		echo "Build may have failed. Check the output above."; \
+		exit 1; \
+	fi
 	@echo "Compiling exploit payload..."
-	@cd exploit && podman run --rm -v $$(pwd):/exploit:Z docker.io/library/maven:3.8.4-jdk-8 javac /exploit/Exploit.java
-	@echo "Exploit setup complete!"
+	@cd exploit && podman run --rm \
+		--userns=keep-id \
+		-v $$(pwd):/exploit:Z \
+		docker.io/library/maven:3.8.4-jdk-8 \
+		javac /exploit/Exploit.java
+	@echo "✓ Exploit setup complete!"
+	@echo "✓ Marshalsec JAR: $$(ls exploit/marshalsec/target/marshalsec-*-all.jar)"
 
 http-server:
 	@echo "Starting HTTP server on port 8888..."

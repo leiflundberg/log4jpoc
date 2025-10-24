@@ -1,0 +1,10 @@
+# Maven build artifacts
+exploit/marshalsec/target/
+
+# Log files
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc

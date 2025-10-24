@@ -30,7 +30,7 @@ Log4Shell is a critical RCE vulnerability in Apache Log4j 2.x (versions 2.0-beta
 ### One-Time Setup
 ```bash
 make build          # Build vulnerable container (Java 8u181 + Log4j 2.14.1)
-make exploit-setup  # Clone marshalsec and compile exploit
+make exploit-setup  # Build marshalsec and compile exploit
 ```
 
 ### Running the Exploit
@@ -147,9 +147,17 @@ make build
 ```bash
 make exploit-setup
 # This will:
-# 1. Clone the marshalsec JNDI exploitation toolkit
-# 2. Build marshalsec with Maven
-# 3. Compile the Exploit.java payload
+# 1. Build marshalsec with Maven (source included in repository)
+# 2. Compile the Exploit.java payload
+```
+
+**Note**: The marshalsec source code is included in this repository (in `exploit/marshalsec/`). If you're setting up from a fresh clone and the marshalsec directory is missing, run:
+```bash
+cd exploit
+git clone https://github.com/mbechler/marshalsec.git
+rm -rf marshalsec/.git  # Remove git repo to avoid nested repo issues
+cd ..
+make exploit-setup
 ```
 
 #### Step 3: Start the HTTP Server
@@ -493,7 +501,7 @@ Rebuild and test - the exploit should fail.
 |---------|-------------|
 | `make help` | Show all available commands |
 | `make build` | Build vulnerable container with Java 8u181 |
-| `make exploit-setup` | Clone marshalsec and compile exploit payload |
+| `make exploit-setup` | Build marshalsec and compile exploit payload |
 | **Background Mode** | |
 | `make start-all` | Start all servers in background (HTTP, LDAP, vulnerable app) |
 | `make status` | Check if all servers are running |
